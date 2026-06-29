@@ -1,0 +1,18 @@
+CS-320 Software Testing & Automation Portfolio
+
+This repository contains the work completed in CS-320: Software Testing, Automation, and Quality Assurance including the Contact Service, Task Service, and Appointment Service projects along with their full JUnit 5 test suites, and reflective journals on software testing approaches.
+
+
+Reflection
+
+How can I ensure that my code, program, or software is functional and secure?
+
+The most important habit I built during this course was making sure every single requirement has a corresponding test before I consider a feature done. For the Contact, Task, and Appointment services, I mapped each rule maximum field lengths, null checks, immutable IDs, valid phone number format, and future-only appointment dates to at least one JUnit 5 test that could fail if I broke it. Boundary value analysis and equivalence partitioning kept the test count manageable: instead of testing every possible phone number, I confirmed the code handles a valid 10-digit string, one that is too short, one that is too long, and one that contains letters, which together cover the full input space. Negative testing with assertThrows was just as important as the happy-path tests, because security and correctness both depend on the system rejecting bad input loudly rather than silently accepting it. I also kept each test method independent, using @BeforeEach to reset state before every test, so that a failure in one test tells me exactly what broke rather than cascading into false failures elsewhere. The combined suite of over 100 tests now functions as a regression net: any future change that silently breaks an existing rule immediately shows up as a red test.
+
+How do I interpret user needs and incorporate them into a program?
+
+User needs start as requirements, and requirements only matter if they are actually enforced in code. In these projects, the requirements were written as precise rules: a contact ID must be unique, non-null, no longer than 10 characters, and must never change after creation. My job was to translate each of those statements into both a validation check in the model or service class and a test that verifies the check works. The test names, testContactIdNull, testAddContactDuplicateIdThrows, testUpdateTaskNameDoesNotChangeDescription were deliberately written to read like requirement statements, so anyone reading the test suite could see exactly which user need each test is protecting. This traceability between requirements and tests is what keeps a program aligned with what the user actually needs as it grows and changes over time, because any requirement that loses its test is a requirement that can silently stop being met.
+
+How do I approach designing software?
+
+My design process in these projects started with constraints and worked outward. Before writing any logic, I read the requirements and identified the invariants the things that must always be true no matter what, such as "the appointment date is never in the past" or "the task ID is final." Those invariants shaped the class design: the ID fields became final with no setter, validation was placed in the constructor so an object could never be created in an invalid state, and the service layer was responsible for enforcing uniqueness across the collection. I also kept each class focused on a single responsibility, the model class validates its own fields, the service class manages the collection which made both the code and the tests easier to reason about. Isolating state in a HashMap within each service meant tests could run without any database or external dependency, which kept the feedback loop fast.
